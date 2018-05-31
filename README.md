@@ -11,7 +11,7 @@
 [![forthebadge](https://forthebadge.com/images/badges/as-seen-on-tv.svg)](https://forthebadge.com)
 
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?style=flat-square)](https://github.com/pesap/switch_mexico_data)
+[![GitHub last commit](https://img.shields.io/github/last-commit/google/skia.svg?style=flat-square)](https://github.com/Switch-Mexico/switch-inputs)
 </div>
 
 # SWITCH inputs for Mexico
