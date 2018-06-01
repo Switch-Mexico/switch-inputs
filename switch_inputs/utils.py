@@ -44,7 +44,7 @@ def init_dirs(ctx):
     Path(default_dir).mkdir(parents=True, exist_ok=True)
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     print (f'Creation sucessfull!\n')
-    print (f'Downloading default data in {default_dir}')
+    print (f'Downloading default data in {default_dir}\n')
 
 
 @init.command('get_data')
@@ -71,6 +71,7 @@ def get_data(ctx):
 
     def download_file_from_google_drive(id, destination):
         URL = "https://docs.google.com/uc?export=download"
+        #  URL = "https://www.googleapis.com/drive/v3/files"
 
         session = requests.Session()
 
@@ -93,20 +94,31 @@ def get_data(ctx):
     def save_response_content(response, destination):
         CHUNK_SIZE = 32*1024
         #  total_size = int(response.headers.get('Content-Length', 0));
-        total_size = int(response.headers.get('Content-Length', 0))/(32*1024)
-        wrote = 0
+        total_size = int(response.headers.get('Content-Length', 0))
+
+        filename = os.path.basename(destination)
+
+        #FIXME: Temporal fix due to google drive api.
+        # It does no return the Content-Length for heavier files.
+        if filename == 'HighLoads.csv':
+            total_size = 84516710
+        elif filename == "renewable.csv":
+            total_size = 180786774
+        else:
+            pass
+
+        print (f'Downloading: {filename}')
         with open(destination, "wb") as f:
             with tqdm(
                     total=total_size,
                     unit='B',
                     unit_scale=True,
-                    #  unit_divisor=1024,
-                    desc="Downloading") as pbar:
+                    unit_divisor=1024,
+                    ) as pbar:
                 for chunk in response.iter_content(CHUNK_SIZE):
-                    pbar.set_postfix(file=os.path.basename(destination),
-                            refresh=True)
-                    f.write(chunk)
-                    pbar.update(len(chunk))
+                    if chunk:
+                        pbar.update(len(chunk))
+                        f.write(chunk)
 
     for key, value in data.items():
         destination, file_id = key, value
