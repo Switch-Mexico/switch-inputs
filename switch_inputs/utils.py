@@ -9,10 +9,13 @@ import logging
 import click
 import pandas as pd
 import requests
+import math
 from tqdm import tqdm
 from logging.config import fileConfig
 from context import *
 from pathlib import Path
+from time import sleep
+
 
 
 logfile_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log.ini')
@@ -88,19 +91,22 @@ def get_data(ctx):
         return None
 
     def save_response_content(response, destination):
-        CHUNK_SIZE = 32768
-        total_size = int(response.headers.get('content-length', 0));
-
+        CHUNK_SIZE = 32*1024
+        #  total_size = int(response.headers.get('Content-Length', 0));
+        total_size = int(response.headers.get('Content-Length', 0))/(32*1024)
         wrote = 0
         with open(destination, "wb") as f:
-            with tqdm(total=total_size//CHUNK_SIZE, unit='kB',
+            with tqdm(
+                    total=total_size,
+                    unit='B',
                     unit_scale=True,
-                    leave=True,
-                    desc=os.path.basename(destination)) as pbar:
+                    #  unit_divisor=1024,
+                    desc="Downloading") as pbar:
                 for chunk in response.iter_content(CHUNK_SIZE):
-                    if chunk: # filter out keep-alive new chunks
-                        f.write(chunk)
-                        pbar.update(CHUNK_SIZE)
+                    pbar.set_postfix(file=os.path.basename(destination),
+                            refresh=True)
+                    f.write(chunk)
+                    pbar.update(len(chunk))
 
     for key, value in data.items():
         destination, file_id = key, value

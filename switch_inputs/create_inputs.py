@@ -531,12 +531,13 @@ def gen_build_predetermined(existing, path=default_path, ext='.tab'):
 
     return gen_legacy
 
-def create_fuel_cost(path=default_path, ext='.tab'):
+def create_fuel_cost(path=default_path, ext='.csv'):
     """ Create fuel_costs.tab """
     output_file = output_path + 'fuel_costs' + ext
-    load_zones = pd.read_csv(os.path.join(path, 'load_zones.csv'))
     periods = read_yaml(path, 'periods.yaml')
-    sys.exit(1)
+    fuel_costs = pd.read_csv(os.path.join(path, 'fuel_cost.csv'), index_col=0)
+    fuel_cost = fuel_costs.loc[fuel_costs['period'].isin(periods['INVESTMENT_PERIOD'])]
+    fuel_cost.to_csv(output_file)
 
 if __name__ == "__main__":
     pass
