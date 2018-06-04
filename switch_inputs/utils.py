@@ -18,10 +18,10 @@ from time import sleep
 
 
 
-logfile_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log.ini')
-#  print ( f'Log file configuration located at: {logfile_path}')
-fileConfig(logfile_path)
-logger = logging.getLogger('Logger')
+#  logfile_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log.ini')
+#  #  print ( f'Log file configuration located at: {logfile_path}')
+#  fileConfig(logfile_path)
+#  logger = logging.getLogger('Logger')
 
 @click.group(invoke_without_command=True)
 @click.option('--verbose', default=False)
