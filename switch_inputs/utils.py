@@ -27,10 +27,12 @@ logger = logging.getLogger('Logger')
 @click.option('--verbose', default=False)
 @click.pass_context
 def init(ctx, verbose):
-    """ Utils functions"""
+    """ Initialize switch inputs datasets"""
+    click.secho('Starging app!', fg='green')
     #  ctx.obj['verbose'] = verbose
     ctx.invoke(init_dirs)
     ctx.invoke(get_data)
+    click.secho('Sucess. App ended correctly ✓\n', fg='green')
     pass
 
 @init.command()
@@ -40,11 +42,15 @@ def init_dirs(ctx):
 
     default_dir = 'data/default'
     output_dir = 'data/switch_inputs'
-    print (f'Creating directories:\n\t{default_dir}\n\t{output_dir}')
+    click.secho('Creating folder: %s' %
+            click.format_filename(f'{default_dir}'),
+            fg='yellow')
     Path(default_dir).mkdir(parents=True, exist_ok=True)
+    click.secho('Creating folder: %s' %
+            click.format_filename(f'{output_dir}'),
+            fg='yellow')
     Path(output_dir).mkdir(parents=True, exist_ok=True)
-    print (f'Creation sucessfull!\n')
-    print (f'Downloading default data in {default_dir}\n')
+    click.secho('Creation sucessfull ✓\n', fg='green')
 
 
 @init.command('get_data')
@@ -107,7 +113,7 @@ def get_data(ctx):
         else:
             pass
 
-        print (f'Downloading: {filename}')
+        click.secho(f'Downloading: {filename}', fg='cyan')
         with open(destination, "wb") as f:
             with tqdm(
                     total=total_size,
@@ -119,6 +125,8 @@ def get_data(ctx):
                     if chunk:
                         pbar.update(len(chunk))
                         f.write(chunk)
+
+    click.secho('Downloading data...\n', fg='blue')
 
     for key, value in data.items():
         destination, file_id = key, value
@@ -190,7 +198,7 @@ def create_gen_build_cost_new(df_gen, ext='.tab', path=default_path,
 
     gen_build_cost = pd.concat(output_list)
     gen_build_cost = modify_costs(gen_build_cost)
-    gen_build_cost.to_csv('gen_build_cost.tab', sep=sep)
+    #  gen_build_cost.to_csv('gen_build_cost.tab', sep=sep)
 
     return (gen_build_cost)
 
@@ -227,7 +235,7 @@ def modify_costs(data, ext='.tab', path=default_path):
 
     # TODO: Change direction of the output_file
     # Save file
-    df.to_csv(output_file, sep=sep, index=False)
+    #  df.to_csv(output_file, sep=sep, index=False)
 
     return (df)
 
@@ -287,7 +295,7 @@ def init_scenario():
     for index, row in cap_limit.iterrows():
         df_gen.loc[df_gen['GENERATION_PROJECT'] == row['project'],
                 'gen_capacity_limit_mw'] = row['capacity_limit']
-    df_gen[column_order].to_csv('generation_test.tab', sep='\t', index=False)
+    #  df_gen[column_order].to_csv('generation_test.tab', sep='\t', index=False)
 
     return df_gen[column_order]
 

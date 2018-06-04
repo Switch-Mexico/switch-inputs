@@ -15,15 +15,16 @@ def print_version(ctx, param, value):
     if not value or ctx.resilient_parsing:
         return
     version = __version__
-    click.echo(f'Switch Inputs {version}')
+    click.echo(f'Switch Inputs {version}. ❤ ')
     ctx.exit()
 
 @click.group(invoke_without_command=True)
 @click.option('--version', is_flag=True, callback=print_version,
               expose_value=False, is_eager=True)
-@click.option('--debug/--no-debug', default=False)
 @click.pass_context
-def main(ctx, debug):
+def main(ctx):
+    click.echo('Welcome to switch-inputs 🔥!\n')
+    click.echo('Answer the following questions to create the scenario. \n')
     # FIXME: For some reason this does not work properly
     #  ctx.obj['DEBUG'] = debug
     pass
@@ -54,10 +55,18 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
     #          pdb.pm()
     #      sys.excepthook = debug
 
-    click.echo('Starting app')
+    click.secho('\nStarting App!', fg='green')
+
+    #  click.secho(f'Number of timepoints selected: {number}', fg='yellow')
+
+    click.secho(f'Reading load data', fg='blue')
+    load_data = get_load_data(filename=load)
+
+    click.secho(f'Reading periods data', fg='blue')
+    periods = read_yaml(path, 'periods.yaml')
 
     if existing and proposed:
-        click.echo('Creating generation project info')
+        click.secho('Creating generation project info', fg='yellow')
         gen_project_legacy = pd.read_csv(os.path.join(default_path,
             'generation_projects_info.tab'), sep='\t')
         gen_project_proposed = init_scenario()
@@ -65,7 +74,8 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
         gen_legacy = gen_build_predetermined(existing)
         create_gen_build_cost(gen_project, gen_legacy)
     else:
-        click.echo('Oops I do not know what to do yet')
+        click.secho('Oops I do not know what to do yet. Blame the developer!',
+                fg='red')
         sys.exit(1)
 
     # Finally
@@ -73,19 +83,11 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
         'generation_projects_info.tab'),
         sep='\t', index=False)
 
-    click.echo(f'Number of timepoints selected: {number}')
-
-    click.echo(f'Reading load data')
-    load_data = get_load_data(filename=load)
-
-    click.echo(f'Reading periods data')
-    periods = read_yaml(path, 'periods.yaml')
-
     d = OrderedDict(periods)
     periods_tab = pd.DataFrame(d)
     periods_tab = periods_tab.set_index('INVESTMENT_PERIOD')
 
-    click.echo(f'Creating timeseries')
+    click.secho(f'Creating timeseries', fg='yellow')
     timeseries, timeseries_dict = [], {}
     for periods, row in periods_tab.iterrows():
         timeseries_dict[periods] = []
@@ -98,26 +100,26 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
         timeseries.append(create_strings(peak_data, scale_to_period))
         timeseries.append(create_strings(median_data, scale_to_period,
                                         identifier='M'))
-    click.echo(f'Creating investment period')
+    click.secho(f'Creating investment period', fg='yellow')
     create_investment_period()
 
     #  create_gen_build_cost_new(peak_data)
     create_timeseries(timeseries, number, **kwargs)
     create_timepoints(timeseries)
-    click.echo(f'Creating variable capacity factor')
+    click.secho(f'Creating variable capacity factor', fg='yellow')
     create_variablecp(gen_project, timeseries, timeseries_dict)
-    click.echo(f'Creating loads')
+    click.secho(f'Creating loads', fg='yellow')
     create_loads(load_data, timeseries)
 
     rps_file, ext = look_for_file('rps_targets', default_path)
 
-    click.echo(f'Creating fuel loads')
+    click.secho(f'Creating fuel cost', fg='yellow')
     create_fuel_cost()
     if rps_file:
-        click.echo(f'Creating rps')
+        click.secho(f'Creating rps', fg='yellow')
         create_rps(filename=rps_file, ext=ext)
 
-    click.echo(f'App ended')
+    click.secho('Sucess. App ended correctly ✓\n', fg='green')
 
 main.add_command(init)
 
