@@ -1,7 +1,5 @@
 install:
 	pipenv install --three
-	pipenv install -e .
-	pipenv insatll twine --dev
 
 publish: bumpversion
 	git push --tags
