@@ -224,6 +224,9 @@ def create_timepoints(data, ext='.tab', **kwargs):
     if isinstance(data, list):
         data = pd.concat(data, sort=True)
 
+    # Sort timepoints by date
+    data.sort_values('date', inplace=True)
+
     # TODO: Write test to check if columns exist
     data = data[['timestamp', 'TIMESERIES', 'daysinmonth']]
     data.index.name = 'timepoint_id'
@@ -297,6 +300,7 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
 
     #  timeseries.index += 1  # To start on 1 instead of 0
     timeseries.index.name = 'timepoint_id'
+
 
     # Delete unused columns
     del timeseries['daysinmonth']
