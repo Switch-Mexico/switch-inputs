@@ -24,8 +24,9 @@ Todo:
 - [x] Verify switch input files creation,
 - [x] Clean folders,
 - [x] Update switch input creation,
-- [ ] Create fuel cost inputs
 - [ ] Create function that check if folders exists
+- [ ] Create sanity check for default inputs 
+- [ ] Create fuel cost inputs
 - [ ] Update switch folder,
 - [ ] Publish runs,
 - [ ] Write Readme and documentation for the codes.
@@ -34,8 +35,39 @@ Todo:
 Collaborators:
 Sergio, Pedro, Hector and others.
 
+## How to use
 
-## How to run Renewable Ninja:
+### Installation
+
+With pip:
+
+```bash
+pip install switch-inputs
+
+With pipenv:
+
+```bash
+pipenv install switch-inputs
+```
+
+### How to run
+
+First we need to download all the default data files:
+
+```bash
+inputs init
+```
+
+To create the switch inputs and create different scenarios run:
+
+```bash
+inputs create
+```
+
+The `data/switch\_inputs` will be copy for switch-model
+
+
+### How to run Renewable Ninja:
 
 Create a file in src/ called secrets.yml with your API\_KEY for using renewable
 ninja API.
