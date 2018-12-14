@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+switch-inputs = {editable = true,path = "."}
 
 [dev-packages]
 pandas = "*"
@@ -15,7 +16,7 @@ rtree = "*"
 twine = "*"
 wheel = "*"
 click = "*"
-"e1839a8" = {path = ".", editable = true}
+e1839a8 = {path = ".",editable = true}
 bumpversion = "*"
 
 [requires]
