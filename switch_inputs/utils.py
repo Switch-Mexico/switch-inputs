@@ -259,9 +259,12 @@ def init_scenario():
     # Restriction
     restriction = read_yaml(default_path, 'restriction.yaml')
 
+    # Get technologies that are not in a load zone
     gen_restriction = {key:
             list(set(df_gen['gen_tech']) - set(df_gen.loc[df_gen['gen_load_zone'] == key, 'gen_tech']))
                         for key in load_zones['LOAD_ZONES']}
+
+    # Quick fix to include solar, wind and geothermal for all loadzones
     for k in gen_restriction:
         gen_restriction[k] = [val for val in gen_restriction[k] if val not in
                 ('wind', 'solarpv', 'geothermal')]
@@ -274,6 +277,8 @@ def init_scenario():
         # Get restriction technology by load zone
         lz_restriction = [key for key, value in restriction['technology'].items()
                                                 if lz in value]
+
+        # Combine load_zone manual restriction and legacy restriction
         tech_rest = set(gen_lz_restriction) | set(lz_restriction)
 
         # Filter restricted technologiesj
