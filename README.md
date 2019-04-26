@@ -24,7 +24,7 @@ Todo:
 - [x] Verify switch input files creation,
 - [x] Clean folders,
 - [x] Update switch input creation,
-- [ ] Create function that check if folders exists
+- [x] Create function that check if folders exists
 - [ ] Create sanity check for default inputs 
 - [ ] Create fuel cost inputs
 - [ ] Update switch folder,
