@@ -154,7 +154,7 @@ def read_yaml(path, filename: str):
 
     with open(file_path, 'r') as stream:
         try:
-            yaml_file = yaml.load(stream)
+            yaml_file = yaml.load(stream, Loader=yaml.FullLoader)
         except yaml.YAMLError as exc:
             raise (exc)
 
