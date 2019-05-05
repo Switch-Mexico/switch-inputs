@@ -297,10 +297,24 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
     timeseries['count'] = timeseries.groupby('ts_period')['TIMESERIES'].transform(len)
     timeseries['ts_num_tps'] = data[['timestamp', 'TIMESERIES']].groupby('TIMESERIES').count().values
 
-    # TODO: Change value of 24 for number of days to represent and 365 for
-    #       the total amount of years?
-    scaling = timeseries['scale_to_period']*24*(365/timeseries['count'])/(timeseries['ts_duration_of_tp']*timeseries['ts_num_tps'])
-    timeseries['ts_scale_to_period'] = scaling
+    def scaling(data):
+        """ Scale based on median or peak day """
+
+        # Scaling for peak day
+        peak_days = data['TIMESERIES'].str.endswith('P')
+        median_days = data['TIMESERIES'].str.endswith('M')
+
+        data.loc[peak_days, 'scaling'] = data['scale_to_period']
+        data.loc[median_days, 'scaling'] = (
+            (data['scale_to_period'] * 24 *
+                    (data['daysinmonth'] - 1))
+                    /
+            (data['ts_duration_of_tp'] * data['ts_num_tps'])
+            )
+        data['weight'] = data['ts_duration_of_tp'] * data['ts_num_tps'] * data['scaling']
+        return (data)
+
+    timeseries = scaling(timeseries)
 
     #  timeseries.index += 1  # To start on 1 instead of 0
     timeseries.index.name = 'timepoint_id'
@@ -310,6 +324,7 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
     del timeseries['daysinmonth']
     del timeseries['scale_to_period']
     del timeseries['count']
+    del timeseries['weight']
 
     timeseries.to_csv(output_file, index=False, sep=sep)
 
