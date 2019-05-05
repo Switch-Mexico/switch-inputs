@@ -207,6 +207,9 @@ def create_rps(path=default_path, filename='rps_targets',
 def create_timepoints(data, ext='.tab', **kwargs):
     """ Create timepoints file
 
+    This function create the timepoints for all the peak and median days
+    selected from the load profile. The output is sorted by date.
+
     Args:
         data (pd.DataFrame): dataframe witht dates ,
         ext (str): output extension to save the file.
@@ -283,7 +286,8 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
     if isinstance(data, list):
         data = pd.concat(data, sort=True)
 
-
+    # Sort values by date
+    data.sort_values('date', inplace=True)
     # Extract unique timeseries_id
     timeseries = data[['TIMESERIES', 'daysinmonth', 'ts_period',
         'scale_to_period']].drop_duplicates('TIMESERIES')
