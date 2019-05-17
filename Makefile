@@ -2,7 +2,7 @@ install:
 	pipenv install --three
 
 publish: bumpversion
-	git push --tags
+	git push --tags -f
 	pipenv run python setup.py bdist_wheel
 	twine upload -r pypi dist/*
 	rm -rf build dist .egg switch_inputs.egg-info
