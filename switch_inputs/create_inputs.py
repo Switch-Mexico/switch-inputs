@@ -304,14 +304,15 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
         peak_days = data['TIMESERIES'].str.endswith('P')
         median_days = data['TIMESERIES'].str.endswith('M')
 
-        data.loc[peak_days, 'scaling'] = data['scale_to_period']
-        data.loc[median_days, 'scaling'] = (
+        data.loc[peak_days, 'ts_scale_to_period'] = data['scale_to_period']
+        data.loc[median_days, 'ts_scale_to_period'] = (
             (data['scale_to_period'] * 24 *
                     (data['daysinmonth'] - 1))
                     /
             (data['ts_duration_of_tp'] * data['ts_num_tps'])
             )
-        data['weight'] = data['ts_duration_of_tp'] * data['ts_num_tps'] * data['scaling']
+        data['weight'] = data['ts_duration_of_tp'] * data['ts_num_tps'] * \
+        data['ts_scale_to_period']
         return (data)
 
     timeseries = scaling(timeseries)
@@ -554,9 +555,9 @@ def gen_build_predetermined(existing, path=default_path, ext='.tab'):
 
     return gen_legacy
 
-def create_fuel_cost(path=default_path, ext='.csv'):
+def create_fuel_cost(path=default_path, ext='.tab'):
     """ Create fuel_costs.tab """
-    output_file = output_path + 'fuel_costs' + ext
+    output_file = output_path + 'fuel_cost' + ext
     periods = read_yaml(path, 'periods.yaml')
     fuel_costs = pd.read_csv(os.path.join(path, 'fuel_cost.csv'), index_col=0)
     fuel_cost = fuel_costs.loc[fuel_costs['period'].isin(periods['INVESTMENT_PERIOD'])]
