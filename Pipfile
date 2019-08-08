@@ -21,4 +21,4 @@ switch-inputs = {editable = true,path = "."}
 flake8 = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"

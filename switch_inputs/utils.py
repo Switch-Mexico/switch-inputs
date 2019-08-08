@@ -239,7 +239,7 @@ def modify_costs(data, ext='.tab', path=default_path):
 
     return (df)
 
-def init_scenario():
+def init_scenario(storage=None):
     """  Create default scenario with existing technology for each loadzone """
 
     df_gen = pd.read_csv(os.path.join(default_path,
@@ -251,6 +251,11 @@ def init_scenario():
 
     gen_default = pd.read_csv(os.path.join(default_path,
                                             'technology_cost.csv'))
+
+    # Remove storage option from initial scenario
+    if not storage:
+        gen_default = gen_default.query("gen_tech != 'storage'")
+
 
     #TODO: This should be a dictionary. Maybe YAML
     load_zones = pd.read_csv(os.path.join(default_path, 'load_zones.csv')

@@ -40,12 +40,16 @@ def main(ctx):
               default=True,
               prompt='Include proposed plants',
               help='Add new plants to the analysis')
+@click.option('--storage', 
+              prompt='Do you want to include storage?',
+              default=False,
+              help='Include storage')
 @click.option('--load', type=click.Choice(['low', 'medium', 'high']),
               prompt='Select load profile',
               default='high',
               help='Load profile to use')
 @click.pass_context
-def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
+def create(ctx, number, existing, proposed, storage, load, path=default_path, **kwargs):
     """ Main function that creates all the inputs 🔥"""
 
     #  if ctx.obj['DEBUG']:
@@ -69,14 +73,15 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
         click.secho('Creating generation project info', fg='yellow')
         gen_project_legacy = pd.read_csv(os.path.join(default_path,
             'generation_projects_info.tab'), sep='\t')
-        gen_project_proposed = init_scenario()
+        if storage:
+            click.secho(f'Including storage in proposed scenario', fg='yellow')
+        gen_project_proposed = init_scenario(storage=storage)
         gen_project = pd.concat([gen_project_legacy, gen_project_proposed])
         gen_legacy = gen_build_predetermined(existing)
         create_gen_build_cost(gen_project, gen_legacy)
     else:
-        click.secho('Oops I do not know what to do yet. Blame the developer!',
-                fg='red')
-        sys.exit(1)
+        raise NotImplementedError("Oops. This is not implemented yet. Blame the developer!")
+
 
     # Finally
     gen_project.to_csv(os.path.join(output_path,
@@ -102,6 +107,8 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
                                         identifier='M'))
     click.secho(f'Creating investment period', fg='yellow')
     create_investment_period()
+
+
 
     #  create_gen_build_cost_new(peak_data)
     create_timeseries(timeseries, number, **kwargs)
