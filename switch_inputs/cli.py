@@ -78,7 +78,7 @@ def create(ctx, number, existing, proposed, storage, load, path=default_path, **
         gen_project_proposed = init_scenario(storage=storage)
         gen_project = pd.concat([gen_project_legacy, gen_project_proposed])
         gen_legacy = gen_build_predetermined(existing)
-        create_gen_build_cost(gen_project, gen_legacy)
+        create_gen_build_cost(gen_project, gen_legacy, storage=storage)
     else:
         raise NotImplementedError("Oops. This is not implemented yet. Blame the developer!")
 

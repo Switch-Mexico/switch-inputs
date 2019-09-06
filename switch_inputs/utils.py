@@ -161,7 +161,7 @@ def read_yaml(path, filename: str):
     return yaml_file
 
 
-def create_gen_build_cost_new(df_gen, ext='.tab', path=default_path,
+def create_gen_build_cost_new(df_gen, storage=None, ext='.tab', path=default_path,
     **kwargs):
     """ Create gen build cost output file
 
@@ -197,6 +197,11 @@ def create_gen_build_cost_new(df_gen, ext='.tab', path=default_path,
         output_list.append(gen_costs[column_order])
 
     gen_build_cost = pd.concat(output_list)
+
+    if storage:
+        # For now we add a default value for the storage cost
+        gen_build_cost.loc[gen_build_cost.gen_tech == "storage", "gen_storage_energy_overnight_cost"] = 1950000.0
+
     gen_build_cost = modify_costs(gen_build_cost)
     #  gen_build_cost.to_csv('gen_build_cost.tab', sep=sep)
 
@@ -220,15 +225,22 @@ def modify_costs(data, ext='.tab', path=default_path):
 
     df = data.copy()
 
-    techo = cost_table['technology'].unique()
+    # TODO: Change the method of propagating the learning curve. The current
+    # method looks for the year in the periods file, but it should look only in
+    # the cost curve and then match with the period.
+
+    tech_list = cost_table['technology'].unique()
     for index in df.build_year.unique():
-        mask = (df['gen_tech'].isin(techo)) & (df['build_year'] == index)
-        for tech in df['gen_tech'].unique():
-            if tech in cost_table['technology'].unique():
+       mask = (df['gen_tech'].isin(tech_list)) & (df['build_year'] == index)
+       for tech in df['gen_tech'].unique():
+           if tech in cost_table['technology'].unique() and any(mask):
                 mask2 = (cost_table['technology'] == tech) & (cost_table['year'] == index)
-                cost_table.loc[mask2, 'gen_overnight_cost'].values[0]
+                # cost_table.loc[mask2, 'gen_overnight_cost'].values[0]
                 df.loc[mask & (df['gen_tech'] == tech), 'gen_overnight_cost'] = cost_table.loc[mask2, 'gen_overnight_cost'].values[0]
                 df.loc[mask & (df['gen_tech'] == tech), 'gen_fixed_om'] = cost_table.loc[mask2, 'gen_fixed_om'].values[0]
+
+           if tech == "storage" and any(mask):
+                df.loc[mask & (df['gen_tech'] == tech), 'gen_storage_energy_overnight_cost'] = cost_table.loc[mask2, 'gen_storage_energy_overnight_cost'].values[0]
 
     df = df.sort_values(['GENERATION_PROJECT', 'build_year'],
                         ascending=[True, True])

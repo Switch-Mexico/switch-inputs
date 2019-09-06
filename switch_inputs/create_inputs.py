@@ -461,7 +461,7 @@ def create_loads(load, data, ext='.tab', **kwargs):
     # Save output file
     loads_tab.to_csv(output_file, sep=sep, index=False)
 
-def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab',
+def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab', storage=None,
         path=default_path,
     **kwargs):
     """ Create gen build cost output file
@@ -486,6 +486,7 @@ def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab',
     output_columns = ['GENERATION_PROJECT', 'build_year', 'gen_overnight_cost',
                         'gen_fixed_om']
 
+
     # Merge to get the build year of the predetermined plants
     merged = pd.merge(gen_legacy, costs_legacy[columns], on=['GENERATION_PROJECT'])
 
@@ -498,7 +499,7 @@ def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab',
     output_costs.append(merged[output_columns])
 
     # Add new plants
-    new_cost = create_gen_build_cost_new(new_plants)
+    new_cost = create_gen_build_cost_new(new_plants, storage=storage)
     output_costs.append(new_cost)
 
     gen_build_cost = pd.concat(output_costs, sort=True)
