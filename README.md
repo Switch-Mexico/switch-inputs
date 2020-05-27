@@ -9,7 +9,13 @@
 
 <br/>
 
-# SWITCH inputs for Mexico
+## Install
+
+```python
+pip install switch-inputs
+```
+
+## Todo
 
 > Under construction. Proceed with caution.
 
