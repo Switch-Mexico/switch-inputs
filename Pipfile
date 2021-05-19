@@ -9,7 +9,7 @@ switch-inputs = {editable = true,path = "."}
 [dev-packages]
 pandas = "*"
 request = "*"
-pyyaml = "*"
+pyyaml = ">=5.4"
 tqdm = "*"
 requests = "*"
 rtree = "*"
