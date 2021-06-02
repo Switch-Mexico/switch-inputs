@@ -50,8 +50,6 @@ def get_load_data(path=default_path, filename='HighLoads.csv',
         # TODO: Change this to f' string format
         raise FileNotFoundError('File not found. Please verify the file is in: {}'.format(os.path.join(path, filename)))
 
-    # Calculate the sum of loads
-    df['total'] = df.sum(axis=1)
 
     try:
         # Shift load data to match generation.
@@ -66,6 +64,9 @@ def get_load_data(path=default_path, filename='HighLoads.csv',
 
     # Remove  columns
     df = df.drop(['year', 'month', 'day', 'hour'], axis=1)
+
+    # Calculate the sum of loads
+    df['total'] = df.sum(axis=1)
 
     df = df.sort_index()
 
@@ -423,6 +424,7 @@ def create_loads(load, data, ext='.tab', **kwargs):
     if 'total' in load.columns:
         del load['total']
 
+
     # Filename convention
     output_file = output_path + 'loads' + ext
     if ext == '.tab': sep='\t'
@@ -430,6 +432,9 @@ def create_loads(load, data, ext='.tab', **kwargs):
     # If multiple timeseries included in data
     if isinstance(data, list):
         data = pd.concat(data, sort=True)
+
+    # QUICK FIX: data comes unsorted somehow. Sorting by date
+    data = data.sort_values("date")
 
     loads_tmp = load.copy() #[load.year <= 2025]
 
@@ -440,6 +445,7 @@ def create_loads(load, data, ext='.tab', **kwargs):
     unstack_loads = (loads_tmp.loc[data['date']] # Get filter dates
                         .reset_index(drop=True)  # Remove datetime
                         .unstack(0))             # Change rows and columns
+    breakpoint()
 
     # Temporal fix to convert series to dataframe
     loads_tab = pd.concat([group.reset_index()
