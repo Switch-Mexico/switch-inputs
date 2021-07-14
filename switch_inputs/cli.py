@@ -61,7 +61,6 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
 
     click.secho(f'Reading load data', fg='blue')
     load_data = get_load_data(filename=load)
-    breakpoint()
 
     click.secho(f'Reading periods data', fg='blue')
     periods = read_yaml(path, 'periods.yaml')

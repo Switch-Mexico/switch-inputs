@@ -1,16 +1,20 @@
-"""
-Code to automatically generate inputs for switch.
+""" Code to automatically generate inputs for switch.
 
 Developers:
     Pedro Andres Sanchez Perez
     Sergio Castellanos Rodriguez
     And other I do not know.
 """
+# Stndard packages
 import os
 import sys
-import yaml
+
+# Third-party packages
 import numpy as np
 import pandas as pd
+import yaml
+
+# Local imports
 from context import *
 from collections import OrderedDict
 from utils import read_yaml, init_scenario
@@ -295,8 +299,11 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
     timeseries = timeseries.reset_index(drop=True)
 
     timeseries['ts_duration_of_tp'] = 24/number
-    timeseries['count'] = timeseries.groupby('ts_period')['TIMESERIES'].transform(len)
-    timeseries['ts_num_tps'] = data[['timestamp', 'TIMESERIES']].groupby('TIMESERIES').count().values
+    timeseries['no_timeseries'] = timeseries.groupby('ts_period')['TIMESERIES'].transform("nunique")
+
+    # Calculate total number of timepoints per period. This is the count of timeseries
+    # times the number of timepoints 
+    timeseries['ts_num_tps'] =  number
 
     def scaling(data):
         """ Scale based on median or peak day """
@@ -305,13 +312,19 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
         peak_days = data['TIMESERIES'].str.endswith('P')
         median_days = data['TIMESERIES'].str.endswith('M')
 
-        data.loc[peak_days, 'ts_scale_to_period'] = data['scale_to_period']
-        data.loc[median_days, 'ts_scale_to_period'] = (
-            (data['scale_to_period'] * 24 *
-                    (data['daysinmonth'] - 1))
+        # data.loc[peak_days, 'ts_scale_to_period'] = data['scale_to_period']
+
+        # Duration of days for peak. This is for scaling purposes
+        peak_duration = 1 # No days
+        data.loc[peak_days, 'no_days'] = peak_duration
+        data.loc[median_days, 'no_days'] = data.loc[median_days, "daysinmonth"] - peak_duration
+
+        data.loc[:, 'ts_scale_to_period'] = (
+            (data['scale_to_period'] * 365 *24 )
                     /
-            (data['ts_duration_of_tp'] * data['ts_num_tps'])
+            (data["no_timeseries"] *data['ts_duration_of_tp'] * data['ts_num_tps'])
             )
+
         data['weight'] = data['ts_duration_of_tp'] * data['ts_num_tps'] * \
         data['ts_scale_to_period']
         return (data)
@@ -324,8 +337,9 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
 
     # Delete unused columns
     del timeseries['daysinmonth']
+    del timeseries['no_days']
     del timeseries['scale_to_period']
-    del timeseries['count']
+    del timeseries['no_timeseries']
     del timeseries['weight']
 
     timeseries.to_csv(output_file, index=False, sep=sep)
@@ -445,7 +459,6 @@ def create_loads(load, data, ext='.tab', **kwargs):
     unstack_loads = (loads_tmp.loc[data['date']] # Get filter dates
                         .reset_index(drop=True)  # Remove datetime
                         .unstack(0))             # Change rows and columns
-    breakpoint()
 
     # Temporal fix to convert series to dataframe
     loads_tab = pd.concat([group.reset_index()
