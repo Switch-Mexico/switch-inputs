@@ -44,8 +44,11 @@ def main(ctx):
               prompt='Select load profile',
               default='high',
               help='Load profile to use')
+@click.option('--ext',
+              default=".csv",
+              help='Extension for output files')
 @click.pass_context
-def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
+def create(ctx, number, existing, proposed, load, ext, path=default_path, **kwargs):
     """ Main function that creates all the inputs 🔥"""
 
     #  if ctx.obj['DEBUG']:
@@ -68,7 +71,8 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
     if existing and proposed:
         click.secho('Creating generation project info', fg='yellow')
         gen_project_legacy = pd.read_csv(os.path.join(default_path,
-            'generation_projects_info.tab'), sep='\t')
+                                                      'generation_projects_info.tab'),
+                                         sep='\t')
         gen_project_proposed = init_scenario()
         gen_project = pd.concat([gen_project_legacy, gen_project_proposed])
         gen_legacy = gen_build_predetermined(existing)
@@ -80,8 +84,8 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
 
     # Finally
     gen_project.to_csv(os.path.join(output_path,
-        'generation_projects_info.tab'),
-        sep='\t', index=False)
+        'generation_projects_info.csv'),
+        sep=',', index=False)
 
     d = OrderedDict(periods)
     periods_tab = pd.DataFrame(d)
@@ -92,8 +96,8 @@ def create(ctx, number, existing, proposed, load, path=default_path, **kwargs):
     for periods, row in periods_tab.iterrows():
         timeseries_dict[periods] = []
         scale_to_period = row[1] - row[0]
-        peak_data = get_peak_day(load_data[str(periods)]['total'], number, freq='1MS', **kwargs)
-        median_data = get_median_day(load_data[str(periods)]['total'], number, freq='1MS', **kwargs)
+        peak_data = get_peak_day(load_data.loc[str(periods), 'total'], number, freq='1MS', **kwargs)
+        median_data = get_median_day(load_data.loc[str(periods),'total'], number, freq='1MS', **kwargs)
         timeseries_dict[periods].append(create_strings(peak_data, scale_to_period))
         timeseries_dict[periods].append(create_strings(median_data, scale_to_period,
                                         identifier='M'))

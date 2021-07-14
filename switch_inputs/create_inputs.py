@@ -89,6 +89,7 @@ def get_peak_day(data, number, freq='MS'):
     Note:
         * Month start is to avoid getting more timepoints in a even division
     """
+    data = data.copy()
     years = []
 
     # Check if number of timepoints is multiple
@@ -148,6 +149,7 @@ def get_median_day(data, number, freq='MS'):
     Note(s):
         * Month start is to avoid getting more timepoints in a even division
     """
+    data = data.copy()
 
     years = []
 
@@ -168,7 +170,7 @@ def get_median_day(data, number, freq='MS'):
 
     return (output_data)
 
-def create_investment_period(path=default_path, ext='.tab', **kwargs):
+def create_investment_period(path=default_path, ext='.csv', **kwargs):
     """ Create periods file using periods.yaml input
 
     Args:
@@ -176,8 +178,9 @@ def create_investment_period(path=default_path, ext='.tab', **kwargs):
         ext (str): output extension to save the file
 
     Note(s):
-        * .tab extension is to match the switch inputs,
+        * .csv extension is to match the switch inputs,
     """
+    sep = "\t" if ext == ".tab" else ","
 
     output_file = output_path + 'periods' + ext
 
@@ -186,14 +189,14 @@ def create_investment_period(path=default_path, ext='.tab', **kwargs):
     d = OrderedDict(periods)
     periods_tab = pd.DataFrame(d)
     periods_tab = periods_tab.set_index('INVESTMENT_PERIOD')
-    periods_tab.to_csv(output_file, sep='\t')
+    periods_tab.to_csv(output_file, sep=sep)
 
 
 def create_rps(path=default_path, filename='rps_targets',
-                output_name='rps_targets', ext='.yaml', output_ext='.tab'):
+                output_name='rps_targets', ext='.yaml', output_ext='.csv'):
     """ Create rps targets file using rps_target.yaml"""
 
-    if output_ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
 
     output_file = output_path + output_name + output_ext
     file_path = os.path.join(path, filename + ext)
@@ -209,7 +212,7 @@ def create_rps(path=default_path, filename='rps_targets',
 
 
 
-def create_timepoints(data, ext='.tab', **kwargs):
+def create_timepoints(data, ext='.csv', **kwargs):
     """ Create timepoints file
 
     This function create the timepoints for all the peak and median days
@@ -224,7 +227,7 @@ def create_timepoints(data, ext='.tab', **kwargs):
     """
 
     # Filename convention
-    if ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
 
     output_file = output_path + 'timepoints' + ext
 
@@ -246,7 +249,7 @@ def create_timepoints(data, ext='.tab', **kwargs):
     data[output_cols].to_csv(output_file, sep=sep)
 
 
-def create_strings(data, scale_to_period, identifier='P',  ext='.tab',
+def create_strings(data, scale_to_period, identifier='P',  ext='.csv',
         **kwargs):
     """ Create strings to process files
 
@@ -257,7 +260,7 @@ def create_strings(data, scale_to_period, identifier='P',  ext='.tab',
         ext (str): output extension to save the file.
 
     Note(s):
-        * .tab extension is to match the switch inputs,
+        * .csv extension is to match the switch inputs,
     """
 
     strftime = '%Y%m%d%H' #  Strftime for label
@@ -271,7 +274,7 @@ def create_strings(data, scale_to_period, identifier='P',  ext='.tab',
 
     return (data)
 
-def create_timeseries(data, number, ext='.tab', **kwargs):
+def create_timeseries(data, number, ext='.csv', **kwargs):
     """ Create timeseries output file
 
     Args:
@@ -280,12 +283,12 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
         ext (str): output extension to save the file.
 
     Note(s):
-        * .tab extension is to match the switch inputs,
+        * .csv extension is to match the switch inputs,
     """
 
     # Filename convention
     output_file = output_path + 'timeseries' + ext
-    if ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
 
     # If multiple timeseries included in data
     if isinstance(data, list):
@@ -344,7 +347,7 @@ def create_timeseries(data, number, ext='.tab', **kwargs):
 
     timeseries.to_csv(output_file, index=False, sep=sep)
 
-def create_variablecp(gen_project, data, timeseries_dict, path=default_path, ext='.tab', **kwargs):
+def create_variablecp(gen_project, data, timeseries_dict, path=default_path, ext='.csv', **kwargs):
     """ Create variable capacity factor  output file
 
     Args:
@@ -359,7 +362,7 @@ def create_variablecp(gen_project, data, timeseries_dict, path=default_path, ext
 
     # Filename convention
     output_file = output_path + 'variable_capacity_factors' + ext
-    if ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
 
     # If multiple timeseries included in data
     if isinstance(data, list):
@@ -424,7 +427,7 @@ def create_variablecp(gen_project, data, timeseries_dict, path=default_path, ext
                     index=False, mode='a', header=(not
                         os.path.exists(output_file)))
 
-def create_loads(load, data, ext='.tab', **kwargs):
+def create_loads(load, data, ext='.csv', **kwargs):
     """ Create load data output file
 
     Args:
@@ -441,7 +444,7 @@ def create_loads(load, data, ext='.tab', **kwargs):
 
     # Filename convention
     output_file = output_path + 'loads' + ext
-    if ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
 
     # If multiple timeseries included in data
     if isinstance(data, list):
@@ -480,7 +483,7 @@ def create_loads(load, data, ext='.tab', **kwargs):
     # Save output file
     loads_tab.to_csv(output_file, sep=sep, index=False)
 
-def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab',
+def create_gen_build_cost(gen_project, gen_legacy,  ext='.csv',
         path=default_path,
     **kwargs):
     """ Create gen build cost output file
@@ -493,7 +496,7 @@ def create_gen_build_cost(gen_project, gen_legacy,  ext='.tab',
         * .tab extension is to match the switch inputs,
     """
 
-    if ext == '.tab': sep='\t'
+    sep = "\t" if ext == ".tab" else ","
     output_file = output_path + 'gen_build_costs' + ext
 
     periods = read_yaml(path, 'periods.yaml')
@@ -557,24 +560,24 @@ def modify_costs(data, path=default_path):
                 df.loc[mask & (df['gen_tech'] == tech), 'gen_overnight_cost'] = cost_table.loc[mask2, 'gen_overnight_cost'].values[0]
     return (df)
 
-def gen_build_predetermined(existing, path=default_path, ext='.tab'):
+def gen_build_predetermined(existing, path=default_path, ext='.csv'):
     """ Construct gen build predetermined file"""
     output_file = output_path + 'gen_build_predetermined' + ext
 
-    if ext == '.tab': sep = '\t'
+    sep = "\t" if ext == ".tab" else ","
 
     # FIXME: Check what format is better to read
-    file_name = 'gen_build_predetermined' + ext
+    file_name = 'gen_build_predetermined.tab'# + ext
 
     file_path = os.path.join(path, file_name)
 
-    gen_legacy = pd.read_csv(file_path, sep=sep) if existing else None
+    gen_legacy = pd.read_csv(file_path, sep="\t") if existing else None
 
     gen_legacy.to_csv(output_file, sep=sep, index=False)
 
     return gen_legacy
 
-def create_fuel_cost(path=default_path, ext='.tab'):
+def create_fuel_cost(path=default_path, ext='.csv'):
     """ Create fuel_costs.tab """
     output_file = output_path + 'fuel_cost' + ext
     periods = read_yaml(path, 'periods.yaml')
