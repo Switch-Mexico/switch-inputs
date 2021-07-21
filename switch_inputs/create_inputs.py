@@ -339,9 +339,11 @@ def create_timeseries(data, number, ext=".csv", **kwargs):
             data.loc[median_days, "daysinmonth"] - peak_duration
         )
 
-        data.loc[:, "ts_scale_to_period"] = (data["scale_to_period"] * 365 * 24) / (
-            data["no_timeseries"] * data["ts_duration_of_tp"] * data["ts_num_tps"]
-        )
+        # NOTE: If you need to scale the timepoints equally in the period just remove the
+        # scaling of the number of days in the month.
+        data.loc[:, "ts_scale_to_period"] = (
+            data["scale_to_period"] * 365 * 24 * (data["no_days"] / data["daysinmonth"])
+        ) / (data["no_timeseries"] * data["ts_duration_of_tp"] * data["ts_num_tps"])
 
         data["weight"] = (
             data["ts_duration_of_tp"] * data["ts_num_tps"] * data["ts_scale_to_period"]
