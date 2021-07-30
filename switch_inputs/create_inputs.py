@@ -4,8 +4,7 @@ Developers:
     Pedro Andres Sanchez Perez
     Sergio Castellanos Rodriguez
     And other I do not know.
-"""
-# Stndard packages
+"""  # Stndard packages
 import os
 import sys
 
@@ -114,31 +113,59 @@ def get_peak_day(data, number, freq="MS"):
         # Convert the max value index to timestamp
         mask = peak_timestamp.strftime("%Y-%m-%d")
 
-        peak_loc = group[mask].index.get_loc(peak_timestamp)
+        def get_next_prv_day(date):
+            if not isinstance(date, pd.Timestamp):
+                date = pd.to_datetime(date)
+            prev_day = date + pd.Timedelta(value=-24, unit="hours")
+            next_day = date + pd.Timedelta(value=24, unit="hours")
+            return prev_day, next_day
 
-        # Check if delta_t does not jump to next day
-        if (peak_timestamp.hour + delta_t) > 23:
-            peak_timestamps = group.loc[mask].iloc[peak_loc::-delta_t]
-            if len(peak_timestamps) < delta_t:
-                missing = number - len(peak_timestamps)
-                peak_timestamps = peak_timestamps.append(
-                    group.loc[mask].iloc[peak_loc::delta_t][1 : missing + 1]
-                )
-        else:
-            peak_timestamps = group.loc[mask].iloc[peak_loc::delta_t]
-            if len(peak_timestamps) < delta_t:
-                missing = number - len(peak_timestamps)
-                peak_timestamps = peak_timestamps.append(
-                    group.loc[mask].iloc[peak_loc::-delta_t][1 : missing + 1]
-                )
+        prev_day, next_day = get_next_prv_day(peak_timestamp)
+
+        subset = group.loc[prev_day:next_day].copy()
+        lw_interval = peak_timestamp - pd.Timedelta(value=delta_t * 2, unit="hours")
+        up_interval = peak_timestamp + pd.Timedelta(
+            value=(delta_t * 2 + delta_t), unit="hours"
+        )
+        # FIXME: Add condition for the different number of timepoints. This only work for
+        # 12 tps
+        tps = subset.loc[
+            peak_timestamp
+            - pd.Timedelta(value=delta_t * 6, unit="hours") : peak_timestamp
+            + pd.Timedelta(value=(delta_t * 4 + delta_t), unit="hours") : delta_t
+        ].copy()
+
+        # tps = subset[
+        # subset_peak
+        # - pd.Timedelta(value=delta_t * 2, unit="hours") : subset_peak
+        # + pd.Timedelta(value=(delta_t * 2 + delta_t), unit="hours") : delta_t
+        # ]
+        # peak_loc = group[mask].index.get_loc(peak_timestamp)
+
+        # # Check if delta_t does not jump to next day
+        # if (peak_timestamp.hour + delta_t) > 23:
+        # peak_timestamps = group.loc[mask].iloc[peak_loc::-delta_t]
+        # if len(peak_timestamps) < delta_t:
+        # missing = number - len(peak_timestamps)
+        # peak_timestamps = peak_timestamps.append(
+        # group.loc[mask].iloc[peak_loc::delta_t][1 : missing + 1]
+        # )
+        # else:
+        # peak_timestamps = group.loc[mask].iloc[peak_loc::delta_t]
+        # if len(peak_timestamps) < delta_t:
+        # missing = number - len(peak_timestamps)
+        # peak_timestamps = peak_timestamps.append(
+        # group.loc[mask].iloc[peak_loc::-delta_t][1 : missing + 1]
+        # )
 
         # Sort the index. Why not?
-        peak_timestamps = peak_timestamps.sort_index().reset_index()
+        # peak_timestamps = peak_timestamps.sort_index().reset_index()
 
-        years.append(peak_timestamps)
+        years.append(tps)
 
     output_data = pd.concat(years, sort=True)
-    output_data = output_data.rename(columns={"datetime": "date", "total": "peak_day"})
+    output_data.rename("peak_day", inplace=True)
+    output_data = output_data.reset_index().rename(columns={"datetime": "date", "total": "peak_day"})
     return output_data
 
 
@@ -349,6 +376,7 @@ def create_timeseries(data, number, ext=".csv", **kwargs):
             data["ts_duration_of_tp"] * data["ts_num_tps"] * data["ts_scale_to_period"]
         )
         return data
+    breakpoint()
 
     timeseries = scaling(timeseries)
 
