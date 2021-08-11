@@ -371,18 +371,18 @@ def create_timeseries(data, number, ext=".csv", **kwargs):
         # NOTE: If you need to scale the timepoints equally in the period just remove the
         # scaling of the number of days in the month.
         data.loc[:, "ts_scale_to_period"] = (
-            data["scale_to_period"] * 365 * 24 * (data["no_days"] / data["daysinmonth"])
-        ) / (data["no_timeseries"] *  data["ts_num_tps"])
-
+            data["scale_to_period"] * 24 * (data["no_days"])
+        ) / (data["ts_duration_of_tp"] * data["ts_num_tps"])
 
         data["weight"] = (
             data["ts_duration_of_tp"] * data["ts_num_tps"] * data["ts_scale_to_period"]
         )
+
+        print(data.groupby("ts_period")["weight"].sum())
         return data
 
-    breakpoint()
-
     timeseries = scaling(timeseries)
+    breakpoint()
 
     #  timeseries.index += 1  # To start on 1 instead of 0
     timeseries.index.name = "timepoint_id"
