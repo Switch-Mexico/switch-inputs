@@ -284,14 +284,15 @@ def init_scenario():
         # Filter restricted technologiesj
         prop_gen = gen_default.loc[~gen_default['gen_tech'].isin(tech_rest)].copy()
 
-        # Include load zone information
-        prop_gen.loc[:, 'gen_load_zone'] = lz
+        # Include load zone information if there are still candidates for the zone
+        if not prop_gen.empty:
+            prop_gen.loc[:, 'gen_load_zone'] = lz
 
-        # Rename generation project
-        prop_gen.loc[:, 'GENERATION_PROJECT'] = (prop_gen['GENERATION_PROJECT']
-                                                    .map(str.lower)
-                                                    + f'_{iterator:03d}')
-        prop_gens.append(prop_gen)
+            # Rename generation project
+            prop_gen.loc[:, 'GENERATION_PROJECT'] = (prop_gen['GENERATION_PROJECT']
+                                                        .map(str.lower)
+                                                        + f'_{iterator:03d}')
+            prop_gens.append(prop_gen)
 
         iterator +=1
     df_gen = pd.concat(prop_gens)

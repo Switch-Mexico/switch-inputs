@@ -382,7 +382,6 @@ def create_timeseries(data, number, ext=".csv", **kwargs):
         return data
 
     timeseries = scaling(timeseries)
-    breakpoint()
 
     #  timeseries.index += 1  # To start on 1 instead of 0
     timeseries.index.name = "timepoint_id"
@@ -393,7 +392,6 @@ def create_timeseries(data, number, ext=".csv", **kwargs):
     del timeseries["scale_to_period"]
     del timeseries["no_timeseries"]
     del timeseries["weight"]
-    breakpoint()
 
     timeseries.to_csv(output_file, index=False, sep=sep)
 
